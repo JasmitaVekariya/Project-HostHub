@@ -1,0 +1,114 @@
+const Listing = require('../models/listing');
+
+// Index - Show all listings
+module.exports.index = async (req, res) => {
+    const listings = await Listing.find({});
+    res.render('listings/index', { listings });
+};
+
+// Show form to create a new listing
+module.exports.renderNewForm = (req, res) => {
+    res.render('listings/new');
+};
+
+// Create a new listing
+
+module.exports.createListing = async (req, res) => {
+    let url = req.file.path;
+    let filename = req.file.filename;
+    const { title, description, image, price, location, country } = req.body.listing;
+    const newListing = new Listing({
+        title,
+        description,
+        image: { url , filename },
+        price,
+        location,
+        country,
+        owner: req.user._id
+    });
+    await newListing.save();
+    req.flash('success', 'Listing created successfully!');
+    res.redirect('/listings');
+};
+
+// Show a specific listing
+module.exports.showListing = async (req, res) => {
+    const { id } = req.params;
+
+    const listing = await Listing.findById(id)
+        .populate({ path: 'reviews', populate: { path: 'author' } })
+        .populate('owner');
+
+    if (!listing) {
+        req.flash('error', 'Listing not found');
+        return res.redirect('/listings');
+    }
+
+    res.render('listings/show', { listing });
+};
+
+// Show edit form
+module.exports.renderEditForm = async (req, res) => {
+    const { id } = req.params;
+    const listing = await Listing.findById(id);
+
+    if (!listing) {
+        req.flash('error', 'Listing not found');
+        return res.redirect('/listings');
+    }
+
+    let originalImageUrl = listing.image.url;
+    originalImageUrl = originalImageUrl.replace("/upload","/upload/w_250");
+
+    res.render('listings/edit', { listing , originalImageUrl});
+};
+
+// Update existing listing
+module.exports.updateListing = async (req, res) => {
+    
+    const { id } = req.params;
+    const { title, description, image, price, location, country } = req.body.listing;
+
+    const updatedListing = await Listing.findByIdAndUpdate(
+        id,
+        {
+            title,
+            description,
+            price,
+            location,
+            country
+        },
+        { new: true }
+    );
+
+    if(typeof req.file !== "undefined")
+    {
+        let url = req.file.path;
+        let filename = req.file.filename;
+        updatedListing.image = {url,filename};
+        await updatedListing.save();
+    }
+
+    if (!updatedListing) {
+        req.flash('error', 'Listing not found');
+        return res.redirect('/listings');
+    }
+
+    req.flash('success', 'Listing updated successfully!');
+    res.redirect(`/listings/${id}`);
+};
+
+// Delete listing
+module.exports.deleteListing = async (req, res) => {
+    const { id } = req.params;
+
+    const deletedListing = await Listing.findByIdAndDelete(id);
+
+    if (!deletedListing) {
+        req.flash('error', 'Listing not found');
+        return res.redirect('/listings');
+    }
+
+    req.flash('success', 'Listing deleted successfully!');
+    res.redirect('/listings');
+};
