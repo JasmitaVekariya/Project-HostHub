@@ -105,3 +105,9 @@ edit-btn{
     background-color: #fe424d !important;
     border: none !important;
 }
+
+/* Map */
+#map { 
+    height: 400px;
+    width: 500ev; 
+}

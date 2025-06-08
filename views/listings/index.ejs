@@ -1,8 +1,64 @@
 <% layout('layouts/boilerplate') %>
-<body>
-    <h1>All Listings</h1>
+<style>
+    #filters{
+        display : flex ;
+        flex-wrap: wrap;
+    }
+    .filter{
+        margin: 1rem;
+        text-align: center;
+        opacity: 0.7;
+    }
 
-    <div class="row row-cols-lg-3 ">
+    .filter:hover {
+        opacity: 1;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .filter p{
+        font-size: small;
+    }
+
+</style>
+<body>
+    <!-- <h1>All Listings</h1> -->
+    <div id="filters">
+        <div class="filter">
+            <div><i class="fa-solid fa-fire-flame-curved"></i></div>
+            <p>Trending</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-bed"></i></div>
+            <p>Rooms</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-mountain-sun"></i></div>
+            <p>Mountain</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-chess-rook"></i></div>
+            <p>Castles</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-person-swimming"></i></div>
+            <p>Amazing Pools</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-campground"></i></div>
+            <p>Camping</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-tractor"></i></div>
+            <p>Farms</p>
+        </div>
+        <div class="filter">
+            <div><i class="fa-solid fa-snowflake"></i></div>
+            <p>Arctic</p>
+        </div>
+    </div>
+
+    <div class="row row-cols-lg-3 mt-3">
         <% listings.forEach(function(listing) { %>
             <a href="/listings/<%= listing._id %>">
             <div class="card" style="width: 18rem;">
