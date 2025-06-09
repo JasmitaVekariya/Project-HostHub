@@ -3,9 +3,17 @@ const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapToken = process.env.MAP_TOKEN
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
-// Index - Show all listings
+// Index - Show all listings or filter by category
 module.exports.index = async (req, res) => {
-    const listings = await Listing.find({});
+    const { category } = req.query;
+
+    let listings;
+    if (category) {
+        listings = await Listing.find({ category: category.toLowerCase() });
+    } else {
+        listings = await Listing.find({});
+    }
+
     res.render('listings/index', { listings });
 };
 
@@ -24,7 +32,7 @@ module.exports.createListing = async (req, res) => {
     let url = req.file.path;
     let filename = req.file.filename;
 
-    const { title, description, image, price, location, country } = req.body.listing;
+    const { title, description, image, price, location, country, category } = req.body.listing;
 
     const newListing = new Listing({
         title,
@@ -33,6 +41,7 @@ module.exports.createListing = async (req, res) => {
         price,
         location,
         country,
+        category, // add this
         owner: req.user._id,
         geometry: {
             type: "Point",
@@ -83,7 +92,7 @@ module.exports.renderEditForm = async (req, res) => {
 module.exports.updateListing = async (req, res) => {
     
     const { id } = req.params;
-    const { title, description, image, price, location, country } = req.body.listing;
+    const { title, description, image, price, location, country, category } = req.body.listing;
 
     const updatedListing = await Listing.findByIdAndUpdate(
         id,
@@ -92,7 +101,8 @@ module.exports.updateListing = async (req, res) => {
             description,
             price,
             location,
-            country
+            country,
+            category 
         },
         { new: true }
     );

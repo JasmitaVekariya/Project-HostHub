@@ -36,6 +36,20 @@
                     <label for="image" class="form-label">Upload Image:</label>
                     <input type="file" name="listing[image]" id="image" class="form-control" value="<%= listing.image.url %>">
                 </div>
+
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="listing[category]" required>
+                        <option value="trending">Trending</option>
+                        <option value="rooms">Rooms</option>
+                        <option value="mountain">Mountain</option>
+                        <option value="castles">Castles</option>
+                        <option value="amazing pools">Amazing Pools</option>
+                        <option value="camping">Camping</option>
+                        <option value="farm">Farms</option>
+                        <option value="arctic">Arctic</option>
+                    </select>
+                </div>
             
                 <div class="mb-3">
                     <label for="location" class="form-label">Location:</label>

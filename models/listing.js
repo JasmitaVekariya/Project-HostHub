@@ -36,8 +36,12 @@ const listingSchema = new Schema({
             type : [ Number ],
             require: true
         }
+    },
+    category: {
+        type: String,
+        enum : ["trending","rooms","mountain","castles","Amazing pools","camping","farm","arctic"]
     }
-    
+
 });
 
 const Listing = mongoose.model('listing', listingSchema);

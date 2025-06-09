@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Listing = require('../models/listing');
 const initData = require('./data');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapToken = process.env.MAP_TOKEN; // Ensure this is set in your env or .env file
+const mapToken = process.env.MAP_TOKEN; 
 const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 main()
@@ -17,6 +17,17 @@ async function main() {
 const initDB = async () => {
   await Listing.deleteMany({});
 
+  const categories = [
+    "trending",
+    "rooms",
+    "mountain",
+    "castles",
+    "Amazing pools",
+    "camping",
+    "farm",
+    "arctic"
+  ];
+
   const dataWithGeometry = [];
 
   for (let obj of initData.data) {
@@ -29,20 +40,23 @@ const initDB = async () => {
 
     const coordinates = geoData.body.features[0]?.geometry?.coordinates || [0, 0];
 
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+
     const listingWithGeometry = {
       ...obj,
       owner: '6841dcfe6e786d29608412a2',
       geometry: {
         type: "Point",
         coordinates: coordinates
-      }
+      },
+      category: randomCategory
     };
 
     dataWithGeometry.push(listingWithGeometry);
   }
 
   await Listing.insertMany(dataWithGeometry);
-  // console.log("Database initialized with sample data including geometry");
+  console.log("Database initialized with sample data including geometry and category");
 };
 
 initDB();
