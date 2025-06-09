@@ -11,6 +11,7 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const cookieParser = require('cookie-parser'); //save and access cookies
 const session = require('express-session'); // For session management
+const MongoStore = require('connect-mongo');
 const flash = require('connect-flash'); // For flash messages
 const passport = require('passport'); // For authentication
 const LocalStrategy = require('passport-local').Strategy; // Local strategy for authentication
@@ -30,7 +31,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // For parsing cookies
 app.engine('ejs', ejsMate); // Use ejsMate for layout support
 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/wanderlust';
+// const MONGO_URL = 'mongodb://127.0.0.1:27017/wanderlust';
+const dbURL = process.env.ATLASDB_URL;
+const secret = process.env.SECRET;
+
 main().then(() => {
     console.log('Connected to MongoDB');
 }).catch(err => {
@@ -38,12 +42,25 @@ main().then(() => {
 });
 
 async function main(){
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(dbURL);
 }
 
 
+const store = MongoStore.create({ 
+    mongoUrl: dbURL, 
+    crypto: {
+    secret:secret
+    } ,
+    touchAfter: 24*3600,
+});
+
+store.on("error",() => {
+    console.log("ERROR in mongo session store",err);
+})
+
 const sessionOptions = {
-    secret: 'mySuperSecretKey', 
+    store: store,
+    secret: secret, 
     resave: false,
     saveUninitialized: true,
     cookie: { 
@@ -52,7 +69,6 @@ const sessionOptions = {
         MaxAge: 24 * 60 * 60 * 1000 // Cookie max age in milliseconds
      }
   };
-
 
 app.use(session(sessionOptions)); // Use session middleware
 app.use(flash()); // Use flash middleware
